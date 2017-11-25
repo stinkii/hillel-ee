@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class HillelEeApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(HillelEeApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(HillelEeApplication.class, args);
+    }
 }
