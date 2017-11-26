@@ -1,14 +1,14 @@
 package hillelee.pet;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -82,24 +82,9 @@ public class PetController {
     }
 }
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-class NoSuchPetException extends RuntimeException {
 
-}
 
-@Data
-@AllArgsConstructor
-class ErrorBody {
-    private String message;
-    private final Integer code = 400;
-}
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-class Pet {
-    private String name;
-    private String specie;
-    private Integer age;
-}
+
+
 
