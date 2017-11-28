@@ -22,11 +22,22 @@ public class DoctorController {
         return new ResponseEntity<List<Doctor>>(doctors, HttpStatus.OK);
     }
 
-    /*@GetMapping("/doctors/{id}")
-    public Doctor findDoctorById() {
-        return doctors;
+    @GetMapping("/doctors/{id}")
+    public ResponseEntity<Doctor> findDoctorById(@PathVariable Integer id) {
+        Optional<Doctor> d = doctors.stream()
+                .filter(doc -> doc.getId().equals(id))
+                .findFirst();
+        Doctor temp;
+        if (d.isPresent()) {
+            temp = d.get();
+            return ResponseEntity.ok(temp);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
+
+    /*
     @GetMapping("/doctors")
     public Doctor findDoctorBySpec(@RequestParam String spec) {
         return doctors;
