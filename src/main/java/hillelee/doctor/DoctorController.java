@@ -1,22 +1,68 @@
 package hillelee.doctor;
 
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class DoctorController {
-
     private List<Doctor> doctors = new ArrayList<Doctor>() {{
 
     }};
 
+    @GetMapping("/doctors")
+    public ResponseEntity<List<Doctor>> getDoctors() {
+
+        return new ResponseEntity<List<Doctor>>(doctors,HttpStatus.OK);
+    }
+
+    /*@GetMapping("/doctors/{id}")
+    public Doctor findDoctorById() {
+        return doctors;
+    }
 
     @GetMapping("/doctors")
-    public List<Doctor> getDoctors() {
+    public Doctor findDoctorBySpec(@RequestParam String spec) {
         return doctors;
+    }
+
+    @GetMapping("/doctors")
+    public Doctor findDoctorBySpec(@RequestParam String name) {
+        return doctors;
+    }*/
+
+    @PostMapping("/doctors")
+    public ResponseEntity<Void> createADoctor(@RequestBody Doctor doctor) {
+        Doctor doc = new Doctor();
+        doc.setId(AutoIncrement.doIncrement());
+        doc.setName(doctor.getName());
+        doc.setSpecialization(doctor.getSpecialization());
+        doctors.add(doc);
+        return ResponseEntity.created(URI.create("/doctors/"+AutoIncrement.getValue())).build();
+    }
+
+    @PutMapping("/doctors/{id}")
+    public ResponseEntity<Void> updateADoctor(@RequestBody Doctor doctor,
+                                              @PathVariable Integer id){
+        Optional<Doctor> d = doctors.stream()
+                .filter(doc -> doc.getId().equals(id))
+                .findFirst();
+        d.setName(doctor.getName());
+        d.setSpecialization(doctor.getSpecialization());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/doctors/{id}")
+    public void deleteADoctor(@PathVariable Integer id) {
+        Doctor d = doctors.stream()
+                            .filter(doctor -> doctor.getId().equals(id))
+                            .findFirst().get();
+        doctors.remove(d);
     }
 }
