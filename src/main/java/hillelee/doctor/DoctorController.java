@@ -19,7 +19,7 @@ public class DoctorController {
     @GetMapping("/doctors")
     public ResponseEntity<List<Doctor>> getDoctors() {
 
-        return new ResponseEntity<List<Doctor>>(doctors,HttpStatus.OK);
+        return new ResponseEntity<List<Doctor>>(doctors, HttpStatus.OK);
     }
 
     /*@GetMapping("/doctors/{id}")
@@ -44,25 +44,32 @@ public class DoctorController {
         doc.setName(doctor.getName());
         doc.setSpecialization(doctor.getSpecialization());
         doctors.add(doc);
-        return ResponseEntity.created(URI.create("/doctors/"+AutoIncrement.getValue())).build();
+        return ResponseEntity.created(URI.create("/doctors/" + AutoIncrement.getValue())).build();
     }
 
     @PutMapping("/doctors/{id}")
     public ResponseEntity<Void> updateADoctor(@RequestBody Doctor doctor,
-                                              @PathVariable Integer id){
+                                              @PathVariable Integer id) {
         Optional<Doctor> d = doctors.stream()
                 .filter(doc -> doc.getId().equals(id))
                 .findFirst();
-        d.setName(doctor.getName());
-        d.setSpecialization(doctor.getSpecialization());
-        return ResponseEntity.noContent().build();
+
+        Doctor temp;
+        if (d.isPresent()) {
+            temp = d.get();
+            temp.setName(doctor.getName());
+            temp.setSpecialization(doctor.getSpecialization());
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/doctors/{id}")
     public void deleteADoctor(@PathVariable Integer id) {
         Doctor d = doctors.stream()
-                            .filter(doctor -> doctor.getId().equals(id))
-                            .findFirst().get();
+                .filter(doctor -> doctor.getId().equals(id))
+                .findFirst().get();
         doctors.remove(d);
     }
 }
