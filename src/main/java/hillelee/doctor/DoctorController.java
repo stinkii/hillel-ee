@@ -9,6 +9,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @RestController
 public class DoctorController {
@@ -16,11 +18,6 @@ public class DoctorController {
 
     }};
 
-    @GetMapping("/doctors")
-    public ResponseEntity<List<Doctor>> getDoctors() {
-
-        return new ResponseEntity<List<Doctor>>(doctors, HttpStatus.OK);
-    }
 
     @GetMapping("/doctors/{id}")
     public ResponseEntity<Doctor> findDoctorById(@PathVariable Integer id) {
@@ -37,25 +34,41 @@ public class DoctorController {
     }
 
 
-    /*
     @GetMapping("/doctors")
-    public Doctor findDoctorBySpec(@RequestParam String spec) {
-        return doctors;
+    public List<Doctor> findDoctorBySpecOrName(@RequestParam Optional<String> spec,
+                                         @RequestParam Optional<String> name) {
+        Predicate<Doctor> specFilter = spec.map(this::filterBySpecialization)
+                .orElse(pet -> true);
+
+        Predicate<Doctor> nameFilter = name.map(this::filterByName)
+                .orElse(pet -> true);
+
+        Predicate<Doctor> complexFilter = specFilter.and(nameFilter);
+
+        return doctors.stream()
+                .filter(complexFilter)
+                .collect(Collectors.toList());
     }
 
-    @GetMapping("/doctors")
-    public Doctor findDoctorBySpec(@RequestParam String name) {
-        return doctors;
-    }*/
+    private Predicate<Doctor> filterBySpecialization(String spec){
+        return doctor -> doctor.getSpecialization().equals(spec);
+    }
+    private Predicate<Doctor> filterByName(String name){
+        return doctor -> doctor.getName().startsWith(name);
+    }
+
 
     @PostMapping("/doctors")
     public ResponseEntity<Void> createADoctor(@RequestBody Doctor doctor) {
-        Doctor doc = new Doctor();
-        doc.setId(AutoIncrement.doIncrement());
-        doc.setName(doctor.getName());
-        doc.setSpecialization(doctor.getSpecialization());
-        doctors.add(doc);
-        return ResponseEntity.created(URI.create("/doctors/" + AutoIncrement.getValue())).build();
+        if(doctors.stream().filter(doctor1 -> doctor1.getId().equals(doctor.getId())).count()==0){
+            Doctor doc = new Doctor();
+            doc.setId(AutoIncrement.doIncrement());
+            doc.setName(doctor.getName());
+            doc.setSpecialization(doctor.getSpecialization());
+            doctors.add(doc);
+            return ResponseEntity.created(URI.create("/doctors/" + AutoIncrement.getValue())).build();
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @PutMapping("/doctors/{id}")
