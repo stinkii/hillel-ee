@@ -21,16 +21,11 @@ public class DoctorController {
 
     @GetMapping("/doctors/{id}")
     public ResponseEntity<Doctor> findDoctorById(@PathVariable Integer id) {
-        Optional<Doctor> d = doctors.stream()
+        return  doctors.stream()
                 .filter(doc -> doc.getId().equals(id))
-                .findFirst();
-        Doctor temp;
-        if (d.isPresent()) {
-            temp = d.get();
-            return ResponseEntity.ok(temp);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+                .findFirst()
+                .map(d -> ResponseEntity.ok(d))
+                .orElseGet( () -> ResponseEntity.notFound().build());
     }
 
 
