@@ -21,17 +21,17 @@ public class DoctorController {
 
     @GetMapping("/doctors/{id}")
     public ResponseEntity<Doctor> findDoctorById(@PathVariable Integer id) {
-        return  doctors.stream()
+        return doctors.stream()
                 .filter(doc -> doc.getId().equals(id))
                 .findFirst()
                 .map(d -> ResponseEntity.ok(d))
-                .orElseGet( () -> ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 
     @GetMapping("/doctors")
     public List<Doctor> findDoctorBySpecOrName(@RequestParam Optional<String> spec,
-                                         @RequestParam Optional<String> name) {
+                                               @RequestParam Optional<String> name) {
         Predicate<Doctor> specFilter = spec.map(this::filterBySpecialization)
                 .orElse(pet -> true);
 
@@ -45,17 +45,18 @@ public class DoctorController {
                 .collect(Collectors.toList());
     }
 
-    private Predicate<Doctor> filterBySpecialization(String spec){
+    private Predicate<Doctor> filterBySpecialization(String spec) {
         return doctor -> doctor.getSpecialization().equals(spec);
     }
-    private Predicate<Doctor> filterByName(String name){
+
+    private Predicate<Doctor> filterByName(String name) {
         return doctor -> doctor.getName().startsWith(name);
     }
 
 
     @PostMapping("/doctors")
     public ResponseEntity<Void> createADoctor(@RequestBody Doctor doctor) {
-        if(doctors.stream().filter(doctor1 -> doctor1.getId().equals(doctor.getId())).count()==0){
+        if (doctors.stream().filter(doctor1 -> doctor1.getId().equals(doctor.getId())).count() == 0) {
             Doctor doc = new Doctor();
             doc.setId(AutoIncrement.doIncrement());
             doc.setName(doctor.getName());

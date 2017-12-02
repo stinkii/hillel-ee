@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-class ErrorBody {
+public class ErrorBody {
     private String message;
     private final Integer code = 400;
 }
