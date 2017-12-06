@@ -1,95 +1,59 @@
 package hillelee.doctor;
 
 
+import hillelee.pet.ErrorBody;
+import hillelee.util.NoSuchDoctorException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 public class DoctorController {
-    private List<Doctor> doctors = new ArrayList<Doctor>() {{
 
-    }};
-
+    private final DoctorService doctorService;
 
     @GetMapping("/doctors/{id}")
-    public ResponseEntity<Doctor> findDoctorById(@PathVariable Integer id) {
-        return doctors.stream()
-                .filter(doc -> doc.getId().equals(id))
-                .findFirst()
-                .map(d -> ResponseEntity.ok(d))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> findDoctorById(@PathVariable Integer id) {
+        Optional<Doctor> maybeDoctor = doctorService.getById(id);
+
+        return maybeDoctor.map(Object.class::cast)
+                .map(doc -> ResponseEntity.ok(doc))
+                .orElse(ResponseEntity.badRequest()
+                        .body(new ErrorBody("there is no doctor with ID " + id)));
     }
 
 
     @GetMapping("/doctors")
     public List<Doctor> findDoctorBySpecOrName(@RequestParam Optional<String> spec,
                                                @RequestParam Optional<String> name) {
-        Predicate<Doctor> specFilter = spec.map(this::filterBySpecialization)
-                .orElse(pet -> true);
 
-        Predicate<Doctor> nameFilter = name.map(this::filterByName)
-                .orElse(pet -> true);
-
-        Predicate<Doctor> complexFilter = specFilter.and(nameFilter);
-
-        return doctors.stream()
-                .filter(complexFilter)
-                .collect(Collectors.toList());
+        return doctorService.getDoctors(spec, name);
     }
-
-    private Predicate<Doctor> filterBySpecialization(String spec) {
-        return doctor -> doctor.getSpecialization().equals(spec);
-    }
-
-    private Predicate<Doctor> filterByName(String name) {
-        return doctor -> doctor.getName().startsWith(name);
-    }
-
 
     @PostMapping("/doctors")
     public ResponseEntity<Void> createADoctor(@RequestBody Doctor doctor) {
-        if (doctors.stream().filter(doctor1 -> doctor1.getId().equals(doctor.getId())).count() == 0) {
-            Doctor doc = new Doctor();
-            doc.setId(AutoIncrement.doIncrement());
-            doc.setName(doctor.getName());
-            doc.setSpecialization(doctor.getSpecialization());
-            doctors.add(doc);
-            return ResponseEntity.created(URI.create("/doctors/" + AutoIncrement.getValue())).build();
-        }
-        return ResponseEntity.badRequest().build();
+        Doctor saved = doctorService.save(doctor);
+        return ResponseEntity.created(URI.create("/doctors/" + saved.getId())).build();
     }
 
     @PutMapping("/doctors/{id}")
-    public ResponseEntity<Void> updateADoctor(@RequestBody Doctor doctor,
-                                              @PathVariable Integer id) {
-        Optional<Doctor> d = doctors.stream()
-                .filter(doc -> doc.getId().equals(id))
-                .findFirst();
-
-        Doctor temp;
-        if (d.isPresent()) {
-            temp = d.get();
-            temp.setName(doctor.getName());
-            temp.setSpecialization(doctor.getSpecialization());
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public void updateADoctor(@RequestBody Doctor doctor,
+                              @PathVariable Integer id) {
+        doctor.setId(id);
+        doctorService.save(doctor);
     }
+
 
     @DeleteMapping("/doctors/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteADoctor(@PathVariable Integer id) {
-        Doctor d = doctors.stream()
-                .filter(doctor -> doctor.getId().equals(id))
-                .findFirst().get();
-        doctors.remove(d);
+        doctorService.delete(id).orElseThrow(NoSuchDoctorException::new);
     }
+
 }
