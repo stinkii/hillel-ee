@@ -1,9 +1,12 @@
 package hillelee.doctor;
 
+import hillelee.util.YamlReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -35,7 +38,7 @@ public class DoctorService {
         return doctor -> doctor.getName().startsWith(name);
     }
 
-    public Optional<Doctor> getById(Integer id) {
+    public Optional<Doctor> getById(String id) {
         return doctorRepository.findById(id);
     }
 
@@ -43,9 +46,19 @@ public class DoctorService {
         return doctorRepository.save(doctor);
     }
 
-    public Optional<Doctor> delete(Integer id) {
-
+    public Optional<Doctor> delete(String id) {
         return doctorRepository.delete(id);
+    }
+
+    public Map<String, Object> getSpecs(){
+        YamlReader reader = new YamlReader();
+        Map<String, Object> specs = null;
+        try {
+            specs = reader.read("src/main/resources/specializations.yml");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return specs;
     }
 
 }
