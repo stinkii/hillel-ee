@@ -22,7 +22,8 @@ public class PetController {
     public List<Pet> getPets(@RequestParam Optional<String> specie,
                              @RequestParam Optional<Integer> age) {
 
-        return petService.getPets(specie, age);
+        List<Pet> pets = petService.getPetUsingSingleJpaMethod(specie, age);
+        return pets;
     }
 
     @GetMapping(value = "/pets/{id}")
