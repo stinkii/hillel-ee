@@ -1,9 +1,12 @@
 package hillelee.doctor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import hillelee.util.YamlReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -44,14 +47,17 @@ public class DoctorService {
     }
 
     public Doctor save(Doctor doctor) {
+        Map<String, Object> specs = getSpecs();
+
         return doctorRepository.save(doctor);
+
     }
 
     public Optional<Doctor> delete(String id) {
         return doctorRepository.delete(id);
     }
 
-    public Collection<Object> getSpecs(){
+    public Map<String, Object> getSpecs() {
         YamlReader reader = new YamlReader();
         Map<String, Object> specs = null;
         try {
@@ -59,9 +65,10 @@ public class DoctorService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return specs.values();
+        return specs;
     }
-    public Collection<Doctor> getDoctors(){
+
+    public Collection<Doctor> getDoctors() {
         return doctorRepository.findAll();
     }
 
