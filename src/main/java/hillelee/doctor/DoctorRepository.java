@@ -22,10 +22,16 @@ public class DoctorRepository {
 
     public Doctor save(Doctor doctor) {
         if (doctor.getId().isEmpty()) {
-            doctor.setId(UUID.randomUUID().toString().replaceAll("-",""));
-        }
-        doctors.add(doctor);
+            doctor.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+            doctors.add(doctor);
+        } else {
+            Doctor temp = doctors.stream()
+                    .filter(doc -> doc.getId().equals(doctor.getId()))
+                    .findFirst().get();
+            int index = doctors.indexOf(temp);
 
+            doctors.set(index, doctor);
+        }
         return doctor;
     }
 
