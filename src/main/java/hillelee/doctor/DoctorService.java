@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class DoctorService {
         return doctorRepository.delete(id);
     }
 
-    public Map<String, Object> getSpecs(){
+    public Collection<Object> getSpecs(){
         YamlReader reader = new YamlReader();
         Map<String, Object> specs = null;
         try {
@@ -58,7 +59,10 @@ public class DoctorService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return specs;
+        return specs.values();
+    }
+    public Collection<Doctor> getDoctors(){
+        return doctorRepository.findAll();
     }
 
 }

@@ -3,17 +3,14 @@ package hillelee.doctor;
 
 import hillelee.pet.ErrorBody;
 import hillelee.util.NoSuchDoctorException;
-import hillelee.util.YamlReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -47,10 +44,18 @@ public class DoctorController {
     }
 
     @PutMapping("/doctors/{id}")
-    public void updateADoctor(@RequestBody Doctor doctor,
-                              @PathVariable String id) {
-        doctor.setId(id);
-        doctorService.save(doctor);
+    public ResponseEntity<?> updateADoctor(@RequestBody Doctor doctor,
+                                           @PathVariable String id) {
+        if (doctorService.getDoctors().stream().anyMatch(doc -> doc.getId().equals(id))) {
+            doctor.setId(id);
+            Doctor temp = new Doctor();
+            temp.setId(doctor.getId());
+            temp.setName(doctor.getName());
+            temp.setSpecialization(doctor.getSpecialization());
+            doctorService.save(temp);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
 
@@ -61,7 +66,7 @@ public class DoctorController {
     }
 
     @GetMapping("/doctors/specializations")
-    public Map<String, Object> getAllSpecializations(){
+    public Collection<Object> getAllSpecializations() {
         return doctorService.getSpecs();
     }
 
