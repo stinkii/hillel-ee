@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -39,8 +39,14 @@ public class DoctorController {
 
     @PostMapping("/doctors")
     public ResponseEntity<Void> createADoctor(@RequestBody Doctor doctor) {
-        Doctor saved = doctorService.save(doctor);
-        return ResponseEntity.created(URI.create("/doctors/" + saved.getId())).build();
+        List<String> list=(List<String>)doctorService.getSpecs().get("list");
+
+        if (list.stream().anyMatch(s -> s.equals(doctor.getSpecialization()))){
+            Doctor saved = doctorService.save(doctor);
+            return ResponseEntity.created(URI.create("/doctors/" + saved.getId())).build();
+
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @PutMapping("/doctors/{id}")
@@ -66,7 +72,7 @@ public class DoctorController {
     }
 
     @GetMapping("/doctors/specializations")
-    public Collection<Object> getAllSpecializations() {
+    public Map<String, Object> getAllSpecializations() {
         return doctorService.getSpecs();
     }
 

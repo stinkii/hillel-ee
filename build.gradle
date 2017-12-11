@@ -29,4 +29,5 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	compile group: 'postgresql', name: 'postgresql', version: '9.0-801.jdbc4'
 	compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8"
+	compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.3.0"
 }
