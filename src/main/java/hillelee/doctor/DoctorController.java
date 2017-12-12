@@ -24,7 +24,7 @@ public class DoctorController {
         Optional<Doctor> maybeDoctor = doctorService.getById(id);
 
         return maybeDoctor.map(Object.class::cast)
-                .map(doc -> ResponseEntity.ok(doc))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.badRequest()
                         .body(new ErrorBody("there is no doctor with ID " + id)));
     }
@@ -52,7 +52,7 @@ public class DoctorController {
     @PutMapping("/doctors/{id}")
     public ResponseEntity<?> updateADoctor(@RequestBody Doctor doctor,
                                            @PathVariable String id) {
-        if (doctorService.getDoctors().stream().anyMatch(doc -> doc.getId().equals(id))) {
+        if (doctorService.doctorExists(id)) {
             doctor.setId(id);
             Doctor temp = new Doctor();
             temp.setId(doctor.getId());

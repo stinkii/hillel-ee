@@ -72,4 +72,8 @@ public class DoctorService {
         return doctorRepository.findAll();
     }
 
+    public Boolean doctorExists(String id){
+        return doctorRepository.findAll().stream().anyMatch(doc -> doc.getId().equals(id));
+    }
+
 }

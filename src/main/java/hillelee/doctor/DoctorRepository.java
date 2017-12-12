@@ -14,10 +14,9 @@ public class DoctorRepository {
     }
 
     public Optional<Doctor> findById(String id) {
-        return Optional.ofNullable(doctors.stream()
+        return doctors.stream()
                 .filter(doctor -> doctor.getId().equals(id))
-                .findFirst()
-                .get());
+                .findFirst();
     }
 
     public Doctor save(Doctor doctor) {
@@ -37,8 +36,11 @@ public class DoctorRepository {
 
     public Optional<Doctor> delete(String id) {
 
-        Doctor doc = doctors.stream().filter(doctor -> doctor.getId().equals(id)).findFirst().get();
+        Optional<Doctor> doc = doctors.stream().filter(doctor -> doctor.getId().equals(id)).findFirst();
 
-        return Optional.ofNullable(doctors.remove(doctors.indexOf(doc)));
+        if(doc.isPresent()) {
+            return Optional.ofNullable(doctors.remove(doctors.indexOf(doc)));
+        }
+        return doc;
     }
 }
