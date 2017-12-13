@@ -2,6 +2,12 @@ clinic-info:
   name: 'my clinic'
   working-hours: '8-17'
 
+doctor-config:
+    specializations:
+      - 'Surgeon'
+      - 'Dentist'
+      - 'Psychologist'
+
 spring:
     datasource:
         url: jdbc:postgresql:pet_clinic

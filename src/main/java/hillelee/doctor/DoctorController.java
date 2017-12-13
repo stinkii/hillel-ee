@@ -2,6 +2,7 @@ package hillelee.doctor;
 
 
 import hillelee.pet.ErrorBody;
+import hillelee.util.DoctorConfig;
 import hillelee.util.NoSuchDoctorException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.Optional;
 public class DoctorController {
 
     private final DoctorService doctorService;
+    private final DoctorConfig config;
 
     @GetMapping("/doctors/{id}")
     public ResponseEntity<?> findDoctorById(@PathVariable String id) {
@@ -39,9 +41,9 @@ public class DoctorController {
 
     @PostMapping("/doctors")
     public ResponseEntity<Void> createADoctor(@RequestBody Doctor doctor) {
-        List<String> list=(List<String>)doctorService.getSpecs().get("list");
+        /*List<String> list=(List<String>)doctorService.getSpecs().get("list");*/
 
-        if (list.stream().anyMatch(s -> s.equals(doctor.getSpecialization()))){
+        if (config.getSpecializations().stream().anyMatch(s -> s.equals(doctor.getSpecialization()))) {
             Doctor saved = doctorService.save(doctor);
             return ResponseEntity.created(URI.create("/doctors/" + saved.getId())).build();
 
@@ -72,8 +74,8 @@ public class DoctorController {
     }
 
     @GetMapping("/doctors/specializations")
-    public Map<String, Object> getAllSpecializations() {
-        return doctorService.getSpecs();
+    public List<String> getAllSpecializations() {
+        return config.getSpecializations();
     }
 
 }
