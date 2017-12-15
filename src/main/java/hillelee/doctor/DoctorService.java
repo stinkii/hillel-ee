@@ -13,16 +13,17 @@ public class DoctorService {
 
     private final JpaDoctorRepository doctorRepository;
 
-    public List<Doctor> getDoctors(Optional<String> spec,
+    public List<Doctor> getDoctors(Optional<List<String>> specializations,
                                    Optional<String> name) {
-        if (spec.isPresent() && name.isPresent()) {
-            return doctorRepository.findBySpecializationAndName(spec.get(), name.get());
+        if (specializations.isPresent() && name.isPresent()) {
+            return doctorRepository.findBySpecializationInAndName(specializations.get(), name.get());
         }
-        if (spec.isPresent()) {
-            return doctorRepository.findBySpecialization(spec.get());
+        if (specializations.isPresent()) {
+            return doctorRepository.findBySpecializationIgnoreCaseIn(specializations
+            .get());
         }
         if (name.isPresent()) {
-            return doctorRepository.findByName(name.get());
+            return doctorRepository.findByNameIgnoreCase(name.get());
         }
         return doctorRepository.findAll();
     }
