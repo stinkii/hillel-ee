@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -22,7 +21,7 @@ public class DoctorController {
     private final DoctorConfig config;
 
     @GetMapping("/doctors/{id}")
-    public ResponseEntity<?> findDoctorById(@PathVariable String id) {
+    public ResponseEntity<?> findDoctorById(@PathVariable Integer id) {
         Optional<Doctor> maybeDoctor = doctorService.getById(id);
 
         return maybeDoctor.map(Object.class::cast)
@@ -33,16 +32,15 @@ public class DoctorController {
 
 
     @GetMapping("/doctors")
-    public List<Doctor> findDoctorBySpecOrName(@RequestParam Optional<String> spec,
-                                               @RequestParam Optional<String> name) {
+    public List<Doctor> getDoctors(@RequestParam Optional<String> name,
+                                   @RequestParam Optional<List<String>> specializations) {
 
-        return doctorService.getDoctors(spec, name);
+        List<Doctor> doctors = doctorService.getDoctors(specializations, name);
+        return doctors;
     }
 
     @PostMapping("/doctors")
     public ResponseEntity<Void> createADoctor(@RequestBody Doctor doctor) {
-        /*List<String> list=(List<String>)doctorService.getSpecs().get("list");*/
-
         if (config.getSpecializations().stream().anyMatch(s -> s.equals(doctor.getSpecialization()))) {
             Doctor saved = doctorService.save(doctor);
             return ResponseEntity.created(URI.create("/doctors/" + saved.getId())).build();
@@ -53,7 +51,7 @@ public class DoctorController {
 
     @PutMapping("/doctors/{id}")
     public ResponseEntity<?> updateADoctor(@RequestBody Doctor doctor,
-                                           @PathVariable String id) {
+                                           @PathVariable Integer id) {
         if (doctorService.doctorExists(id)) {
             doctor.setId(id);
             Doctor temp = new Doctor();
@@ -69,7 +67,7 @@ public class DoctorController {
 
     @DeleteMapping("/doctors/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteADoctor(@PathVariable String id) {
+    public void deleteADoctor(@PathVariable Integer id) {
         doctorService.delete(id).orElseThrow(NoSuchDoctorException::new);
     }
 
