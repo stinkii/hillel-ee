@@ -17,6 +17,7 @@ public interface JpaDoctorRepository extends JpaRepository<Doctor, Integer>{
                                              @Param("name") String name);
 */
     List<Doctor> findBySpecializationInAndName(List<String> specializations,String name);
+
     List<Doctor> findBySpecializationIgnoreCaseIn(List<String> specializations);
 
     List<Doctor> findByNameIgnoreCase(String name);

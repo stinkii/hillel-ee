@@ -14,13 +14,18 @@ spring:
         username: postgres
         password: root
 
-    jackson.property-naming-strategy: SNAKE_CASE
+    jackson:
+      property-naming-strategy: SNAKE_CASE
+      serialization:
+        write_dates_as_timestamps: false
+        indent-output: true
     jpa:
         show-sql: true
         database-platform: org.hibernate.dialect.PostgreSQLDialect
         hibernate:
-          ddl-auto: update
+          ddl-auto: create
+        open-in-view: false
 
-logging.level.org.hibernate: DEBUG
+#logging.level.org.hibernate: DEBUG
 
 

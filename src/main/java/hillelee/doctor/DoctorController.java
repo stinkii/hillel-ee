@@ -28,6 +28,7 @@ public class DoctorController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.badRequest()
                         .body(new ErrorBody("there is no doctor with ID " + id)));
+
     }
 
 

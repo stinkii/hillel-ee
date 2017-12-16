@@ -20,7 +20,7 @@ public class DoctorService {
         }
         if (specializations.isPresent()) {
             return doctorRepository.findBySpecializationIgnoreCaseIn(specializations
-            .get());
+                    .get());
         }
         if (name.isPresent()) {
             return doctorRepository.findByNameIgnoreCase(name.get());
