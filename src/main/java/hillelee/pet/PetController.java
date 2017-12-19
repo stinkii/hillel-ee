@@ -22,7 +22,7 @@ public class PetController {
     public List<Pet> getPets(@RequestParam Optional<String> specie,
                              @RequestParam Optional<Integer> age) {
 
-        List<Pet> pets = petService.getPetsUsingSeparateJpaMethods(specie, age);
+        List<Pet> pets = petService.getPetUsingSingleJpaMethod(specie, age);
         return pets;
     }
 

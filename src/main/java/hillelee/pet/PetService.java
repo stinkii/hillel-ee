@@ -3,6 +3,7 @@ package hillelee.pet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -42,8 +43,13 @@ public class PetService {
         return petRepository.findAll().stream().filter(complexFilter).collect(Collectors.toList());
     }
 
+    @Transactional
     public List<Pet> getPetUsingSingleJpaMethod(Optional<String> specie, Optional<Integer> age){
-        return petRepository.findNullableBySpecieAndAge(specie.orElse(null),age.orElse(null));
+        List<Pet> pets= petRepository.findNullableBySpecieAndAge(specie.orElse(null),age.orElse(null));
+
+        pets.forEach(pet -> System.out.println(pet.getPrescriptions()));
+
+        return  pets;
     }
 
     private Predicate<Pet> filterByAge(Integer age) {
