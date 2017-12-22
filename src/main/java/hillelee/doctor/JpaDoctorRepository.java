@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface JpaDoctorRepository extends JpaRepository<Doctor, Integer>{
+public interface JpaDoctorRepository extends JpaRepository<Doctor, Integer> {
     Optional<Doctor> findById(Integer id);
 
     /*@Query("SELECT doctor FROM Doctor AS doctor " +
@@ -16,9 +16,9 @@ public interface JpaDoctorRepository extends JpaRepository<Doctor, Integer>{
     List<Doctor> findBySpecializationAndName(@Param("specializations") List<String> specializations,
                                              @Param("name") String name);
 */
-    List<Doctor> findBySpecializationInAndName(List<String> specializations,String name);
+    List<Doctor> findBySpecializationsInAndName(List<String> specializations, String name);
 
-    List<Doctor> findBySpecializationIgnoreCaseIn(List<String> specializations);
+    List<Doctor> findBySpecializationsIgnoreCaseIn(List<String> specializations);
 
     List<Doctor> findByNameIgnoreCase(String name);
 

@@ -10,8 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,10 +46,9 @@ public class DoctorController {
 
     @PostMapping("/doctors")
     public ResponseEntity<Void> createADoctor(@RequestBody Doctor doctor) {
-        if (config.getSpecializations().stream().anyMatch(s -> s.equals(doctor.getSpecialization()))) {
+        if (config.getSpecializations().containsAll(doctor.getSpecializations())) {
             Doctor saved = doctorService.save(doctor);
             return ResponseEntity.created(URI.create("/doctors/" + saved.getId())).build();
-
         }
         return ResponseEntity.badRequest().build();
     }
@@ -58,7 +61,8 @@ public class DoctorController {
             Doctor temp = new Doctor();
             temp.setId(doctor.getId());
             temp.setName(doctor.getName());
-            temp.setSpecialization(doctor.getSpecialization());
+            temp.setSpecializations(doctor.getSpecializations());
+            temp.setAppointments(doctor.getAppointments());
             doctorService.save(temp);
             return ResponseEntity.noContent().build();
         }
@@ -74,7 +78,16 @@ public class DoctorController {
 
     @GetMapping("/doctors/specializations")
     public List<String> getAllSpecializations() {
+
         return config.getSpecializations();
+        /*return Arrays.stream(Specializations.values()).map(specializations -> specializations.toString())
+                .collect(Collectors.toList());*/
+    }
+
+    @GetMapping("/doctors/{id}/schedule/{date}")
+    public Set<Appointment> getSchedule(@PathVariable Integer id,
+                                        @PathVariable Optional<String> date) {
+        return doctorService.getDoctorsSchedule(id, date);
     }
 
 }

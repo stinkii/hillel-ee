@@ -1,8 +1,7 @@
 package hillelee;
 
 
-import hillelee.doctor.DoctorService;
-import hillelee.doctor.JpaDoctorRepository;
+import hillelee.doctor.*;
 import hillelee.pet.*;
 
 import org.apache.tomcat.jni.Local;
@@ -11,8 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
 
 @Configuration
 public class HilleleeConfig {
@@ -23,8 +23,9 @@ public class HilleleeConfig {
     }
 
     @Bean
-    DoctorService doctorService(JpaDoctorRepository doctorRepository) {
-        return new DoctorService(doctorRepository);
+    DoctorService doctorService(JpaDoctorRepository doctorRepository, JpaAppointmentRepository appointmentRepository) {
+
+        return new DoctorService(doctorRepository, appointmentRepository);
     }
 
     @Bean
@@ -34,19 +35,39 @@ public class HilleleeConfig {
                 return;
             }
 
-            List <Prescription> tomsPrescriptions= Arrays.asList(
+            List<Prescription> tomsPrescriptions = Arrays.asList(
                     new Prescription("paracetamol", LocalDate.now(), 3),
                     new Prescription("aspirin", LocalDate.now(), 4)
             );
-            List <Prescription> jerrysPrescriptions= Arrays.asList(
+            List<Prescription> jerrysPrescriptions = Arrays.asList(
                     new Prescription("paracetamol", LocalDate.now(), 3)
             );
 
 
             MedicalCard tomsCard = new MedicalCard(LocalDate.now(), "bla-bla");
             MedicalCard jerrysCard = new MedicalCard(LocalDate.now(), "foo-bar");
-            repository.save(new Pet("Tom", "Cat", 3, LocalDate.now(), tomsCard,tomsPrescriptions));
+            repository.save(new Pet("Tom", "Cat", 3, LocalDate.now(), tomsCard, tomsPrescriptions));
             repository.save(new Pet("Jerry", "Mouse", 1, LocalDate.now(), jerrysCard, jerrysPrescriptions));
+        };
+    }
+
+    @Bean
+    CommandLineRunner initDoctorDb(JpaDoctorRepository repository) {
+        return args -> {
+            if (!repository.findAll().isEmpty()) {
+                return;
+            }
+
+            Set<String> specializations = new HashSet<String>() {{
+                add("Surgeon");
+                add("Dentist");
+            }};
+
+            Set<Appointment> appointments = new HashSet<Appointment>() {{
+                add(new Appointment(LocalDate.now(), 2, LocalTime.of(9, 10)));
+            }};
+
+            repository.save(new Doctor("Alex", specializations, appointments));
         };
     }
 }

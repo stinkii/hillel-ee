@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -18,5 +16,14 @@ public class Doctor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
-    private String specialization;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<String> specializations;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Appointment> appointments;
+
+    public Doctor(String name, Set<String> specializations, Set<Appointment> appointments) {
+        this.name = name;
+        this.specializations = specializations;
+        this.appointments = appointments;
+    }
 }
