@@ -1,9 +1,13 @@
 package hillelee.pet;
 
+import hillelee.store.StoreService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -14,24 +18,25 @@ import java.util.stream.Collectors;
 public class PetService {
 
     private final JpaPetRepository petRepository;
+    private final StoreService storeService;
 
 
     public List<Pet> getPetsUsingSeparateJpaMethods(Optional<String> specie, Optional<Integer> age) {
 
-        if(specie.isPresent() && age.isPresent()){
-            return petRepository.findBySpecieAndAge(specie.get(),age.get());
+        if (specie.isPresent() && age.isPresent()) {
+            return petRepository.findBySpecieAndAge(specie.get(), age.get());
         }
-        if (specie.isPresent()){
+        if (specie.isPresent()) {
             return petRepository.findBySpecie(specie.get());
         }
-        if(age.isPresent()){
+        if (age.isPresent()) {
             return petRepository.findByAge(age.get());
         }
 
         return petRepository.findAll();
     }
 
-    private List<Pet> getPetUsingStreamFilters(Optional<String> specie, Optional<Integer> age){
+    private List<Pet> getPetUsingStreamFilters(Optional<String> specie, Optional<Integer> age) {
         Predicate<Pet> specieFilter = specie.map(this::filterBySpecie)
                 .orElse(pet -> true);
 
@@ -44,12 +49,12 @@ public class PetService {
     }
 
     @Transactional
-    public List<Pet> getPetUsingSingleJpaMethod(Optional<String> specie, Optional<Integer> age){
-        List<Pet> pets= petRepository.findNullableBySpecieAndAge(specie.orElse(null),age.orElse(null));
+    public List<Pet> getPetUsingSingleJpaMethod(Optional<String> specie, Optional<Integer> age) {
+        List<Pet> pets = petRepository.findNullableBySpecieAndAge(specie.orElse(null), age.orElse(null));
 
         pets.forEach(pet -> System.out.println(pet.getPrescriptions()));
 
-        return  pets;
+        return pets;
     }
 
     private Predicate<Pet> filterByAge(Integer age) {
@@ -75,7 +80,23 @@ public class PetService {
 
         maybePet.ifPresent(pet -> petRepository.delete(pet.getId()));
 
-       /* maybePet.map(Pet::getId).ifPresent(petRepository::delete);*/
+        /* maybePet.map(Pet::getId).ifPresent(petRepository::delete);*/
         return maybePet;
+    }
+
+    @Transactional
+    @Retryable(ObjectOptimisticLockingFailureException.class)
+    public void prescribe(Integer petId,
+                          String description,
+                          String medicineName,
+                          Integer quantity,
+                          Integer timesPerDay) {
+        Pet pet = petRepository.findById(petId).orElseThrow(RuntimeException::new);
+
+        pet.getPrescriptions().add(new Prescription(description, LocalDate.now(), timesPerDay));
+
+        petRepository.save(pet);
+
+        storeService.decrement(medicineName, quantity);
     }
 }

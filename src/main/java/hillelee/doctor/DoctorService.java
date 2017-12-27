@@ -1,12 +1,14 @@
 package hillelee.doctor;
 
 
+import hillelee.pet.Pet;
+import hillelee.util.EngagedAppointmentException;
 import hillelee.util.InvalidDateException;
 import hillelee.util.NoSuchDoctorException;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.jni.Local;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -42,17 +44,6 @@ public class DoctorService {
     }
 
     public Doctor save(Doctor doctor) {
-        if (doctor.getAppointments()
-                .stream().anyMatch(appointment -> appointment.getComingDate().isBefore(LocalDate.now())
-                        && appointment.getTime().isBefore(LocalTime.now()))) {
-            throw new InvalidDateException();
-        }
-        if (doctor.getAppointments().stream().
-                anyMatch(appointment -> appointment.getTime().isBefore(LocalTime.of(8,0))
-                && appointment.getTime().isAfter(LocalTime.of()))){
-
-        }
-
         return doctorRepository.save(doctor);
 
     }
@@ -74,7 +65,7 @@ public class DoctorService {
         if (!doctorRepository.findById(id).isPresent()) {
             throw new NoSuchDoctorException();
         }
-        if(date.isPresent()){
+        if (date.isPresent()) {
             return doctorRepository.findById(id)
                     .get().getAppointments().stream()
                     .filter(appointment -> appointment.getComingDate().
@@ -83,4 +74,25 @@ public class DoctorService {
         }
         return doctorRepository.findById(id).get().getAppointments();
     }
+
+    public Doctor createAnAppointment(Integer id, String date, String time, Integer petId) {
+        if (!doctorRepository.findById(id).isPresent()) {
+            throw new NoSuchDoctorException();
+        }
+        Doctor doctor = doctorRepository.findById(id).get();
+        Appointment appointment = new Appointment(LocalDate.parse(date), LocalTime.of(Integer.valueOf(time), 0), petId);
+        if (appointment.getComingDate().isBefore(LocalDate.now()) ||
+                appointment.getTime().isBefore(LocalTime.of(8, 0)) ||
+                appointment.getTime().isAfter(LocalTime.of(16, 0))) {
+            throw new InvalidDateException();
+        } else if (doctor.getAppointments().
+                stream()
+                .anyMatch(appointment1 -> appointment1.getComingDate().equals(LocalDate.parse(date)) &&
+                        appointment1.getTime().equals(LocalTime.of(Integer.valueOf(time), 0)))) {
+            throw new EngagedAppointmentException();
+        }
+        doctor.getAppointments().add(appointment);
+        return doctorRepository.save(doctor);
+    }
+
 }

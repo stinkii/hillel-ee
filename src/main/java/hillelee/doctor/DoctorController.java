@@ -1,7 +1,9 @@
 package hillelee.doctor;
 
 
+import hillelee.doctor.dto.PetIdInputDto;
 import hillelee.pet.ErrorBody;
+import hillelee.store.NoSuchMedicineException;
 import hillelee.util.DoctorConfig;
 import hillelee.util.NoSuchDoctorException;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +56,17 @@ public class DoctorController {
         return ResponseEntity.badRequest().build();
     }
 
+    @PostMapping("/doctors/{id}/schedule/{date}/{time}")
+    public ResponseEntity<Void> createAnAppointment(@PathVariable Integer id,
+                                                    @PathVariable String date,
+                                                    @PathVariable String time,
+                                                    @RequestBody PetIdInputDto petId) {
+        Doctor saved = doctorService.createAnAppointment(id, date, time, petId.getPetId());
+        return ResponseEntity.created(
+                URI.create("/doctors/" + saved.getId())).build();
+
+    }
+
     @PutMapping("/doctors/{id}")
     public ResponseEntity<?> updateADoctor(@RequestBody Doctor doctor,
                                            @PathVariable Integer id) {
@@ -88,6 +102,14 @@ public class DoctorController {
     public Set<Appointment> getSchedule(@PathVariable Integer id,
                                         @PathVariable Optional<String> date) {
         return doctorService.getDoctorsSchedule(id, date);
+    }
+
+    
+
+
+    @ExceptionHandler(NoSuchDoctorException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public void nosuchdoctor() {
     }
 
 }

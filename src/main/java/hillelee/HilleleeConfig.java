@@ -4,6 +4,8 @@ package hillelee;
 import hillelee.doctor.*;
 import hillelee.pet.*;
 
+import hillelee.store.Medicine;
+import hillelee.store.MedicineRepository;
 import org.apache.tomcat.jni.Local;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -16,17 +18,6 @@ import java.util.*;
 
 @Configuration
 public class HilleleeConfig {
-
-    @Bean
-    PetService petService(JpaPetRepository petRepository) {
-        return new PetService(petRepository);
-    }
-
-    @Bean
-    DoctorService doctorService(JpaDoctorRepository doctorRepository, JpaAppointmentRepository appointmentRepository) {
-
-        return new DoctorService(doctorRepository, appointmentRepository);
-    }
 
     @Bean
     CommandLineRunner initDb(JpaPetRepository repository) {
@@ -64,10 +55,20 @@ public class HilleleeConfig {
             }};
 
             Set<Appointment> appointments = new HashSet<Appointment>() {{
-                add(new Appointment(LocalDate.now(), 2, LocalTime.of(9, 10)));
+                add(new Appointment(LocalDate.now(), LocalTime.of(9, 0),8));
             }};
 
             repository.save(new Doctor("Alex", specializations, appointments));
+        };
+    }
+
+    @Bean
+    CommandLineRunner initStoreDb(MedicineRepository repository) {
+        return args -> {
+            if (!repository.findAll().isEmpty()) {
+                return;
+            }
+            repository.save(new Medicine("Brilliant green",1));
         };
     }
 }

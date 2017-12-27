@@ -35,6 +35,5 @@ dependencies {
 
 	compile 'org.hibernate:hibernate-java8'
 
-
-
+	compile 'org.springframework.retry:spring-retry'
 }

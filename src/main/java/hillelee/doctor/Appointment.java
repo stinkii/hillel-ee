@@ -20,12 +20,12 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private LocalDate comingDate;
-    private Integer petId;
     private LocalTime time;
+    private Integer petId;
 
-    public Appointment(LocalDate comingDate, Integer petId, LocalTime time) {
+    public Appointment(LocalDate comingDate, LocalTime time, Integer petId) {
         this.comingDate = comingDate;
-        this.petId = petId;
         this.time = time;
+        this.petId = petId;
     }
 }
