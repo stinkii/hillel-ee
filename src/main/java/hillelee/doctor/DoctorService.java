@@ -61,7 +61,6 @@ public class DoctorService {
     }
 
     public Map<LocalTime, Integer> getDoctorsSchedule(Integer id, LocalDate date) {
-        
         if (!doctorRepository.findById(id).isPresent()) {
             throw new NoSuchDoctorException();
         }
@@ -76,7 +75,7 @@ public class DoctorService {
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue, HashMap::new));
+                (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
     }
 
