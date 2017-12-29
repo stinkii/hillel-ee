@@ -18,7 +18,7 @@ public class Doctor {
     private String name;
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> specializations;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<Appointment> appointments;
 
     public Doctor(String name, Set<String> specializations, Set<Appointment> appointments) {

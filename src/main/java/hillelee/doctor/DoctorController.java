@@ -14,10 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -61,7 +58,8 @@ public class DoctorController {
                                                     @PathVariable String date,
                                                     @PathVariable String time,
                                                     @RequestBody PetIdInputDto petId) {
-        Doctor saved = doctorService.createAnAppointment(id, date, time, petId.getPetId());
+        Doctor saved = doctorService.createAnAppointment(id, LocalDate.parse(date),
+                LocalTime.parse(time)/*.of(Integer.valueOf(time), 0)*/, petId.getPetId());
         return ResponseEntity.created(
                 URI.create("/doctors/" + saved.getId())).build();
 
@@ -99,12 +97,10 @@ public class DoctorController {
     }
 
     @GetMapping("/doctors/{id}/schedule/{date}")
-    public Set<Appointment> getSchedule(@PathVariable Integer id,
-                                        @PathVariable Optional<String> date) {
-        return doctorService.getDoctorsSchedule(id, date);
+    public Map<LocalTime, Integer> getSchedule(@PathVariable Integer id,
+                                               @PathVariable String date) {
+        return doctorService.getDoctorsSchedule(id, LocalDate.parse(date));
     }
-
-    
 
 
     @ExceptionHandler(NoSuchDoctorException.class)
