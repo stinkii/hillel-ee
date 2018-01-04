@@ -4,11 +4,17 @@ import hillelee.pet.dto.PrescriptionInputDto;
 import hillelee.store.NoSuchMedicineException;
 import hillelee.util.NoSuchPetException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,11 +27,12 @@ public class PetController {
     private final PetService petService;
 
     @GetMapping(value = "/pets")
-    public List<Pet> getPets(@RequestParam Optional<String> specie,
-                             @RequestParam Optional<Integer> age) {
+    public Page<Pet> getPets(@RequestParam Optional<String> specie,
+                             @RequestParam Optional<Integer> age,
+                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> birthDate,
+                             Pageable pageable) {
 
-        List<Pet> pets = petService.getPetUsingSingleJpaMethod(specie, age);
-        return pets;
+        return petService.getPetsUsingSeparateJpaMethods(specie, age, birthDate, pageable);
     }
 
     @GetMapping(value = "/pets/{id}")
@@ -64,7 +71,7 @@ public class PetController {
 
     @PostMapping("/pets/{id}/prescriptions")
     public void prescribe(@PathVariable Integer id,
-                          @RequestBody PrescriptionInputDto dto) {
+                          @Valid @RequestBody PrescriptionInputDto dto) {
         petService.prescribe(id, dto.getDescription(),
                 dto.getMedicineName(),
                 dto.getQuantity(),
@@ -73,7 +80,7 @@ public class PetController {
 
     @ExceptionHandler(NoSuchMedicineException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public void nosuchmedicine() {
+    public void noSuchMedicine() {
     }
 
 }

@@ -3,10 +3,10 @@ package hillelee.doctor;
 
 import hillelee.doctor.dto.PetIdInputDto;
 import hillelee.pet.ErrorBody;
-import hillelee.store.NoSuchMedicineException;
 import hillelee.util.DoctorConfig;
 import hillelee.util.NoSuchDoctorException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,11 +56,11 @@ public class DoctorController {
 
     @PostMapping("/doctors/{id}/schedule/{date}/{time}")
     public ResponseEntity<Void> createAnAppointment(@PathVariable Integer id,
-                                                    @PathVariable String date,
+                                                    @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                                     @PathVariable String time,
                                                     @RequestBody PetIdInputDto petId) {
-        Doctor saved = doctorService.createAnAppointment(id, LocalDate.parse(date),
-                LocalTime.parse(time)/*.of(Integer.valueOf(time), 0)*/, petId.getPetId());
+        Doctor saved = doctorService.createAnAppointment(id, date,
+                LocalTime.parse(time), petId.getPetId());
         return ResponseEntity.created(
                 URI.create("/doctors/" + saved.getId())).build();
 
@@ -90,10 +91,7 @@ public class DoctorController {
 
     @GetMapping("/doctors/specializations")
     public List<String> getAllSpecializations() {
-
         return config.getSpecializations();
-        /*return Arrays.stream(Specializations.values()).map(specializations -> specializations.toString())
-                .collect(Collectors.toList());*/
     }
 
     @GetMapping("/doctors/{id}/schedule/{date}")
@@ -105,7 +103,7 @@ public class DoctorController {
 
     @ExceptionHandler(NoSuchDoctorException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public void nosuchdoctor() {
+    public void noSuchDoctor() {
     }
 
 }

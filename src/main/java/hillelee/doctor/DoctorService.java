@@ -1,19 +1,18 @@
 package hillelee.doctor;
 
 
-import hillelee.pet.Pet;
 import hillelee.util.EngagedAppointmentException;
 import hillelee.util.InvalidDateException;
 import hillelee.util.NoSuchDoctorException;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.jni.Local;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
-import java.util.function.Function;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,20 +64,15 @@ public class DoctorService {
             throw new NoSuchDoctorException();
         }
 
-        Map<LocalTime, Integer> map = doctorRepository.findById(id)
+        return doctorRepository.findById(id)
                 .get()
                 .getAppointments().stream()
                 .filter(appointment -> appointment.getComingDate().equals(date))
-                .collect(Collectors.toMap(Appointment::getTime, Appointment::getPetId, (a, b) -> b));
-
-        return map.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByKey())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+                .collect(Collectors.toMap(Appointment::getTime, Appointment::getPetId));
 
     }
 
+    @Transactional
     public Doctor createAnAppointment(Integer id, LocalDate date, LocalTime time, Integer petId) {
         if (!doctorRepository.findById(id).isPresent()) {
             throw new NoSuchDoctorException();
@@ -90,7 +84,8 @@ public class DoctorService {
                 appointment.getTime().isAfter(LocalTime.of(16, 0)) ||
                 appointment.getTime().getMinute() != 0) {
             throw new InvalidDateException();
-        } else if (doctor.getAppointments().
+        }
+        if (doctor.getAppointments().
                 stream()
                 .anyMatch(appointment1 -> appointment1.getComingDate().equals(date) &&
                         appointment1.getTime().equals(time))) {

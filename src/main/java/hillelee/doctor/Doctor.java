@@ -15,6 +15,8 @@ public class Doctor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Version
+    private Integer version;
     private String name;
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> specializations;

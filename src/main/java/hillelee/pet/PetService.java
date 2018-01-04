@@ -2,6 +2,9 @@ package hillelee.pet;
 
 import hillelee.store.StoreService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -21,19 +24,25 @@ public class PetService {
     private final StoreService storeService;
 
 
-    public List<Pet> getPetsUsingSeparateJpaMethods(Optional<String> specie, Optional<Integer> age) {
+    public Page<Pet> getPetsUsingSeparateJpaMethods(Optional<String> specie,
+                                                    Optional<Integer> age,
+                                                    Optional<LocalDate> birthDate,
+                                                    Pageable pageable) {
 
-        if (specie.isPresent() && age.isPresent()) {
-            return petRepository.findBySpecieAndAge(specie.get(), age.get());
+        if (specie.isPresent() && age.isPresent() && birthDate.isPresent()) {
+            return petRepository.findBySpecieAndAgeAndBirthDate(specie.get(), age.get(), birthDate.get(), pageable);
         }
         if (specie.isPresent()) {
-            return petRepository.findBySpecie(specie.get());
+            return petRepository.findBySpecie(specie.get(), pageable);
         }
         if (age.isPresent()) {
-            return petRepository.findByAge(age.get());
+            return petRepository.findByAge(age.get(), pageable);
+        }
+        if (birthDate.isPresent()) {
+            return petRepository.findByBirthDate(birthDate.get(), pageable);
         }
 
-        return petRepository.findAll();
+        return petRepository.findAll(pageable);
     }
 
     private List<Pet> getPetUsingStreamFilters(Optional<String> specie, Optional<Integer> age) {
@@ -93,7 +102,7 @@ public class PetService {
                           Integer timesPerDay) {
         Pet pet = petRepository.findById(petId).orElseThrow(RuntimeException::new);
 
-        pet.getPrescriptions().add(new Prescription(description, LocalDate.now(), timesPerDay));
+        pet.getPrescriptions().add(new Prescription(description, LocalDate.now(), timesPerDay, MedicineType.PERORAL));
 
         petRepository.save(pet);
 

@@ -10,6 +10,7 @@ import org.apache.tomcat.jni.Local;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ import java.util.*;
 public class HilleleeConfig {
 
     @Bean
+    @Profile("prod")
     CommandLineRunner initDb(JpaPetRepository repository) {
         return args -> {
             if (!repository.findAll().isEmpty()) {
@@ -27,11 +29,11 @@ public class HilleleeConfig {
             }
 
             List<Prescription> tomsPrescriptions = Arrays.asList(
-                    new Prescription("paracetamol", LocalDate.now(), 3),
-                    new Prescription("aspirin", LocalDate.now(), 4)
+                    new Prescription("paracetamol", LocalDate.now(), 3, MedicineType.PERORAL),
+                    new Prescription("aspirin", LocalDate.now(), 4, MedicineType.PERORAL)
             );
             List<Prescription> jerrysPrescriptions = Arrays.asList(
-                    new Prescription("paracetamol", LocalDate.now(), 3)
+                    new Prescription("paracetamol", LocalDate.now(), 3, MedicineType.PERORAL)
             );
 
 
@@ -43,6 +45,7 @@ public class HilleleeConfig {
     }
 
     @Bean
+    @Profile("prod")
     CommandLineRunner initDoctorDb(JpaDoctorRepository repository) {
         return args -> {
             if (!repository.findAll().isEmpty()) {
@@ -55,7 +58,7 @@ public class HilleleeConfig {
             }};
 
             Set<Appointment> appointments = new HashSet<Appointment>() {{
-                add(new Appointment(LocalDate.now(), LocalTime.of(9, 0),8));
+                add(new Appointment(LocalDate.now(), LocalTime.of(9, 0), 8));
             }};
 
             repository.save(new Doctor("Alex", specializations, appointments));
@@ -63,12 +66,13 @@ public class HilleleeConfig {
     }
 
     @Bean
+    @Profile("prod")
     CommandLineRunner initStoreDb(MedicineRepository repository) {
         return args -> {
             if (!repository.findAll().isEmpty()) {
                 return;
             }
-            repository.save(new Medicine("Brilliant green",1));
+            repository.save(new Medicine("Brilliant green", 1));
         };
     }
 }

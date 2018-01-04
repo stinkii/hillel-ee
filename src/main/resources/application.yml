@@ -26,7 +26,16 @@ spring:
           ddl-auto: create
         open-in-view: false
 
+---
+spring:
+  profiles: prod
+  datasource:
+          url: jdbc:postgresql:pet_clinic
+          username: postgres
+          password: root
 
+  jackson.serialization.indent-output: false
+  #jpa.hibernate.ddl-auto: validate
 #logging.level.org.hibernate: DEBUG
 
 

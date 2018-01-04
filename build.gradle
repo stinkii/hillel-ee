@@ -22,18 +22,28 @@ repositories {
     mavenCentral()
 }
 
+bootRun{
+    systemProperty 'spring.profiles.active', 'prod'
+}
 
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
+
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8"
+
     compileOnly('org.projectlombok:lombok')
+
     testCompile('org.springframework.boot:spring-boot-starter-test')
+
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
+
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
-    //runtime('com.h2database:h2')
+
     runtime('org.postgresql:postgresql')
 
     compile 'org.hibernate:hibernate-java8'
 
     compile 'org.springframework.retry:spring-retry'
+
+    runtime('h2.database:h2')
 }
