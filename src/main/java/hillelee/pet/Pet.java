@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @AllArgsConstructor
@@ -38,5 +39,8 @@ public class Pet {
         this.birthDate = birthDate;
         this.medicalCard = medicalCard;
         this.prescriptions = prescriptions;
+    }
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 }

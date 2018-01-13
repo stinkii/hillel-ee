@@ -41,6 +41,8 @@ dependencies {
 
     runtime('org.postgresql:postgresql')
 
+    compile group: 'com.google.guava', name: 'guava', version: '23.6-jre'
+    
     compile 'org.hibernate:hibernate-java8'
 
     compile 'org.springframework.retry:spring-retry'
