@@ -21,7 +21,7 @@ import java.util.*;
 public class HilleleeConfig {
 
     @Bean
-    @Profile("prod")
+    /*@Profile("prod")*/
     CommandLineRunner initDb(JpaPetRepository repository) {
         return args -> {
             if (!repository.findAll().isEmpty()) {
@@ -75,4 +75,6 @@ public class HilleleeConfig {
             repository.save(new Medicine("Brilliant green", 1));
         };
     }
+
+
 }
